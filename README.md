@@ -120,7 +120,7 @@ simple_loop:
     pop rbp
     ret
 ```
-
+![Visual](test_data/simple_loop_function_cfg.png)
 Input assembly (AT&T syntax):
 ```assembly
 .type simple_loop, @function
@@ -135,7 +135,7 @@ simple_loop:
     popq %rbp
     retq
 ```
-
+![Visual](test_data/simple_loop_function_att_cfg.png)
 Output: Detects 1 back edge (loop_start -> loop_start) colored red in visualization.
 
 ### Complex Function Analysis
