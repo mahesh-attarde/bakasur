@@ -212,10 +212,122 @@ another_func:
         result = self.run_cfg_tool(["--help"])
         
         self.assertEqual(result.returncode, 0)
-        self.assertIn("Parse assembly files and build control flow graphs", result.stdout)
+        self.assertIn("Parse assembly files, objdump files, or object files to build control flow graphs", result.stdout)
         self.assertIn("Examples:", result.stdout)
         self.assertIn("-f", result.stdout)
         self.assertIn("--export-dot", result.stdout)
+
+    def test_object_file_parsing(self):
+        """Test parsing object files directly"""
+        test_data_dir = Path(__file__).parent.parent / "test_data"
+        test_object = test_data_dir / "test_simple_loop_att.o"
+        
+        if test_object.exists():
+            result = self.run_cfg_tool([str(test_object), "-f", "simple_loop_function_att", "--auto-detect"])
+            
+            self.assertEqual(result.returncode, 0)
+            self.assertIn("Auto-detected file type: OBJDUMP", result.stdout)
+            self.assertIn("Executing objdump on object file", result.stdout)
+            self.assertIn("simple_loop_function_att", result.stdout)
+            self.assertIn("Detected Loops:", result.stdout)
+        else:
+            self.skipTest("Test object file not available")
+
+    def test_object_file_all_functions(self):
+        """Test parsing all functions from object file"""
+        test_data_dir = Path(__file__).parent.parent / "test_data"
+        test_object = test_data_dir / "test_simple_loop_att.o"
+        
+        if test_object.exists():
+            result = self.run_cfg_tool([str(test_object), "--auto-detect"])
+            
+            self.assertEqual(result.returncode, 0)
+            self.assertIn("Auto-detected file type: OBJDUMP", result.stdout)
+            self.assertIn("Executing objdump on object file", result.stdout)
+            self.assertIn("Found", result.stdout)
+            self.assertIn("function(s)", result.stdout)
+        else:
+            self.skipTest("Test object file not available")
+
+    def test_object_file_export_dot(self):
+        """Test DOT export from object file"""
+        test_data_dir = Path(__file__).parent.parent / "test_data"
+        test_object = test_data_dir / "test_simple_loop_att.o"
+        
+        if test_object.exists():
+            with tempfile.TemporaryDirectory() as temp_dir:
+                result = self.run_cfg_tool([
+                    str(test_object), 
+                    "-f", "simple_loop_function_att", 
+                    "--export-dot", 
+                    "--auto-detect",
+                    "-o", temp_dir
+                ])
+                
+                self.assertEqual(result.returncode, 0)
+                self.assertIn("CFG exported to:", result.stdout)
+                
+                # Check that DOT file was created
+                dot_files = list(Path(temp_dir).glob("*.dot"))
+                self.assertGreater(len(dot_files), 0)
+        else:
+            self.skipTest("Test object file not available")
+
+    def test_complex_object_file(self):
+        """Test with complex object file"""
+        test_data_dir = Path(__file__).parent.parent / "test_data"
+        test_object = test_data_dir / "MonteCarlo_demo.o"
+        
+        if test_object.exists():
+            result = self.run_cfg_tool([
+                str(test_object), 
+                "-f", "MonteCarlo_integrate", 
+                "--auto-detect"
+            ])
+            
+            self.assertEqual(result.returncode, 0)
+            self.assertIn("Auto-detected file type: OBJDUMP", result.stdout)
+            self.assertIn("MonteCarlo_integrate", result.stdout)
+            self.assertIn("Total Blocks:", result.stdout)
+            self.assertIn("Detected Loops:", result.stdout)
+        else:
+            self.skipTest("MonteCarlo test object file not available")
+
+    def test_objdump_file_parsing(self):
+        """Test parsing existing objdump files"""
+        test_data_dir = Path(__file__).parent.parent / "test_data"
+        test_dump = test_data_dir / "test_simple_loop_att.obj.dump"
+        
+        if test_dump.exists():
+            result = self.run_cfg_tool([
+                str(test_dump), 
+                "-f", "simple_loop_function_att",
+                "--auto-detect"
+            ])
+            
+            self.assertEqual(result.returncode, 0)
+            self.assertIn("Auto-detected file type: OBJDUMP", result.stdout)
+            self.assertIn("simple_loop_function_att", result.stdout)
+            # Should NOT contain "Executing objdump" since it's already a dump file
+            self.assertNotIn("Executing objdump", result.stdout)
+        else:
+            self.skipTest("Test objdump file not available")
+
+    def test_invalid_object_file(self):
+        """Test error handling with invalid object file"""
+        # Create a temporary file with .o extension but invalid content
+        with tempfile.NamedTemporaryFile(suffix=".o", delete=False) as temp_file:
+            temp_file.write(b"not an object file")
+            temp_file_path = temp_file.name
+            
+        try:
+            result = self.run_cfg_tool([temp_file_path, "--auto-detect"])
+            
+            # Should fail gracefully
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("Error", result.stdout)
+        finally:
+            os.unlink(temp_file_path)
 
 
 if __name__ == '__main__':

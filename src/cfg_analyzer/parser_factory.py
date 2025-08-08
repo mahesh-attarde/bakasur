@@ -1,9 +1,10 @@
 """
 Assembly Parser Factory
 
-Factory for creating the appropriate assembly parser based on syntax.
+Factory for creating the appropriate assembly parser based on syntax and file type.
 """
 
+import re
 from enum import Enum
 from typing import Union
 from .base_parser import BaseAssemblyParser
@@ -17,22 +18,30 @@ class AssemblySyntax(Enum):
     ATT = "att"
 
 
+class FileType(Enum):
+    """Supported file types"""
+    ASSEMBLY = "assembly"
+    OBJDUMP = "objdump"
+
+
 class AssemblyParserFactory:
     """Factory for creating assembly parsers"""
     
     @staticmethod
-    def create_parser(syntax: Union[AssemblySyntax, str] = AssemblySyntax.INTEL) -> BaseAssemblyParser:
+    def create_parser(syntax: Union[AssemblySyntax, str] = AssemblySyntax.INTEL, 
+                     file_type: Union[FileType, str] = FileType.ASSEMBLY) -> BaseAssemblyParser:
         """
-        Create an assembly parser for the specified syntax.
+        Create an assembly parser for the specified syntax and file type.
         
         Args:
             syntax: The assembly syntax (Intel or AT&T). Defaults to Intel.
+            file_type: The file type (assembly or objdump). Defaults to assembly.
             
         Returns:
             BaseAssemblyParser: The appropriate parser instance
             
         Raises:
-            ValueError: If the syntax is not supported
+            ValueError: If the syntax or file type is not supported
         """
         if isinstance(syntax, str):
             try:
@@ -41,17 +50,46 @@ class AssemblyParserFactory:
                 raise ValueError(f"Unsupported assembly syntax: {syntax}. "
                                f"Supported syntaxes: {[s.value for s in AssemblySyntax]}")
         
-        if syntax == AssemblySyntax.INTEL:
-            return IntelAssemblyParser()
-        elif syntax == AssemblySyntax.ATT:
-            return ATTAssemblyParser()
+        if isinstance(file_type, str):
+            try:
+                file_type = FileType(file_type.lower())
+            except ValueError:
+                raise ValueError(f"Unsupported file type: {file_type}. "
+                               f"Supported types: {[t.value for t in FileType]}")
+        
+        if file_type == FileType.OBJDUMP:
+            from .objdump_parser import ObjdumpParser
+            
+            # Create syntax-specific parser for objdump to delegate to
+            if syntax == AssemblySyntax.INTEL:
+                syntax_parser = IntelAssemblyParser()
+            elif syntax == AssemblySyntax.ATT:
+                syntax_parser = ATTAssemblyParser()
+            else:
+                raise ValueError(f"Unsupported assembly syntax: {syntax}")
+            
+            return ObjdumpParser(syntax_parser)
+        
+        elif file_type == FileType.ASSEMBLY:
+            if syntax == AssemblySyntax.INTEL:
+                return IntelAssemblyParser()
+            elif syntax == AssemblySyntax.ATT:
+                return ATTAssemblyParser()
+            else:
+                raise ValueError(f"Unsupported assembly syntax: {syntax}")
+        
         else:
-            raise ValueError(f"Unsupported assembly syntax: {syntax}")
+            raise ValueError(f"Unsupported file type: {file_type}")
     
     @staticmethod
     def get_supported_syntaxes() -> list[str]:
         """Get list of supported assembly syntaxes"""
         return [syntax.value for syntax in AssemblySyntax]
+    
+    @staticmethod
+    def get_supported_file_types() -> list[str]:
+        """Get list of supported file types"""
+        return [file_type.value for file_type in FileType]
     
     @staticmethod
     def detect_syntax(file_path: str) -> AssemblySyntax:
@@ -104,6 +142,42 @@ class AssemblyParserFactory:
         except Exception:
             # Default to Intel if detection fails
             return AssemblySyntax.INTEL
+    
+    @staticmethod
+    def detect_file_type(file_path: str) -> FileType:
+        """
+        Attempt to auto-detect file type from file extension and content.
+        
+        Args:
+            file_path: Path to the file
+            
+        Returns:
+            FileType: The detected file type (defaults to assembly if uncertain)
+        """
+        from pathlib import Path
+        from .objdump_parser import ObjdumpParser
+        
+        file_path_obj = Path(file_path)
+        
+        try:
+            # Check if it's an object file by extension first
+            if ObjdumpParser.is_object_file(file_path):
+                return FileType.OBJDUMP
+            
+            # Check file content for objdump format
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Check for objdump indicators
+            if ('file format' in content and 
+                'Disassembly of section' in content and
+                re.search(r'[0-9a-fA-F]+:\s+[a-zA-Z]', content)):
+                return FileType.OBJDUMP
+            else:
+                return FileType.ASSEMBLY
+                
+        except Exception:
+            return FileType.ASSEMBLY
 
 
 # Convenience function for backward compatibility

@@ -2,8 +2,9 @@
 """
 Control Flow Graph Parser Command-Line Tool
 
-This script parses assembly files and builds control flow graphs for functions.
+This script parses assembly files and objdump files to build control flow graphs for functions.
 It can analyze specific functions or all functions in the file.
+Supports both Intel and AT&T assembly syntax.
 """
 
 import sys
@@ -18,15 +19,16 @@ from cfg_analyzer import (
     CFGAssemblyParser,  # For backward compatibility
     AssemblyParserFactory, 
     AssemblySyntax,
+    FileType,
     print_cfg_summary, 
     print_cfg_detailed, 
     export_cfg_to_dot
 )
 
-def parse_specific_function(file_path: str, function_name: str, verbose: bool = False, detailed: bool = False, syntax: str = "intel"):
+def parse_specific_function(file_path: str, function_name: str, verbose: bool = False, detailed: bool = False, syntax: str = "intel", file_type: str = "assembly"):
     """Parse and analyze a specific function"""
     try:
-        parser = AssemblyParserFactory.create_parser(syntax)
+        parser = AssemblyParserFactory.create_parser(syntax, file_type)
     except ValueError as e:
         print(f"Error: {e}")
         return None
@@ -69,12 +71,12 @@ def parse_specific_function(file_path: str, function_name: str, verbose: bool = 
         
     except Exception as e:
         print(f"Error parsing file: {e}")
-        return None
+        raise
 
-def parse_all_functions(file_path: str, summary_only: bool = True, syntax: str = "intel"):
+def parse_all_functions(file_path: str, summary_only: bool = True, syntax: str = "intel", file_type: str = "assembly"):
     """Parse and analyze all functions in the file"""
     try:
-        parser = AssemblyParserFactory.create_parser(syntax)
+        parser = AssemblyParserFactory.create_parser(syntax, file_type)
     except ValueError as e:
         print(f"Error: {e}")
         return {}
@@ -114,7 +116,7 @@ def parse_all_functions(file_path: str, summary_only: bool = True, syntax: str =
         
     except Exception as e:
         print(f"Error parsing file: {e}")
-        return {}
+        raise
 
 def export_function_cfg(cfg, function_name: str, output_dir: str = ".", include_instructions: bool = True, max_instructions: int = None):
     """Export a function's CFG to DOT format"""
@@ -135,15 +137,31 @@ def export_all_cfgs(cfgs: dict, output_dir: str = ".", include_instructions: boo
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Parse assembly files and build control flow graphs",
+        description="Parse assembly files, objdump files, or object files to build control flow graphs",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   # Parse all functions (summary) - Intel syntax (default)
   python cfg_tool.py loops.s
   
-  # Parse specific function with AT&T syntax
+  # Parse object file directly (auto-executes objdump)
+  python cfg_tool.py loops.o -f function_name
+  
+  # Parse objdump file with AT&T syntax
+  python cfg_tool.py loops.obj.dump -t objdump -s att
+  
+  # Auto-detect file type and syntax (recommended)
+  python cfg_tool.py loops.o --auto-detect -f function_name
+  python cfg_tool.py loops.obj.dump --auto-detect -f function_name
+  
+  # Parse specific function with AT&T syntax from assembly
   python cfg_tool.py loops.s -f MonteCarlo_integrate -s att
+  
+  # Parse object file with specific function (executes objdump automatically)
+  python cfg_tool.py loops.o -f MonteCarlo_integrate -v
+  
+  # Parse objdump file with specific function
+  python cfg_tool.py loops.obj.dump -f MonteCarlo_integrate -t objdump -v
   
   # Auto-detect syntax and parse specific function
   python cfg_tool.py loops.s -f MonteCarlo_integrate --auto-detect -v
@@ -151,29 +169,36 @@ Examples:
   # Parse specific function with detailed output
   python cfg_tool.py loops.s -f MonteCarlo_integrate -v
   
-  # Export CFG to DOT format with all instructions
-  python cfg_tool.py loops.s -f MonteCarlo_integrate --export-dot
+  # Export CFG to DOT format with all instructions (object file)
+  python cfg_tool.py loops.o -f MonteCarlo_integrate --export-dot
   
-  # Export CFG with limited instructions per block (AT&T syntax)
-  python cfg_tool.py loops.s -f MonteCarlo_integrate --export-dot --max-instructions 5 -s att
+  # Export objdump CFG with limited instructions per block
+  python cfg_tool.py loops.obj.dump -f function_name --export-dot --max-instructions 5 -t objdump
   
   # Export CFG without instructions (summary only)
   python cfg_tool.py loops.s -f MonteCarlo_integrate --export-dot --no-instructions
   
-  # Parse all functions with detailed output
-  python cfg_tool.py loops.s --detailed
+  # Parse all functions with detailed output (from object file)
+  python cfg_tool.py loops.o --detailed
   
   # Export all CFGs to DOT files with instruction limit
   python cfg_tool.py loops.s --export-all-dot --max-instructions 3 -o output_dir
+
+File Types Supported:
+  - Assembly source files (.s, .asm)
+  - Object files (.o, .obj, .so, .a, .dylib, .dll) - automatically executes objdump
+  - Objdump output files (.dump, .objdump) - parses existing objdump output
         """
     )
     
-    parser.add_argument('file', help='Assembly file to parse')
+    parser.add_argument('file', help='Assembly file (.s, .asm), object file (.o, .obj, .so, etc.), or objdump output file (.dump)')
     parser.add_argument('-f', '--function', help='Specific function to analyze')
     parser.add_argument('-s', '--syntax', choices=['intel', 'att'], default='intel',
                        help='Assembly syntax (default: intel)')
+    parser.add_argument('-t', '--type', choices=['assembly', 'objdump'], default='assembly',
+                       help='File type: assembly source or objdump output (default: assembly). Object files are auto-detected.')
     parser.add_argument('--auto-detect', action='store_true',
-                       help='Auto-detect assembly syntax from file content')
+                       help='Auto-detect assembly syntax and file type from content (recommended)')
     parser.add_argument('-v', '--verbose', action='store_true', 
                        help='Show detailed instruction information')
     parser.add_argument('--detailed', action='store_true',
@@ -197,34 +222,44 @@ Examples:
         print(f"Error: File '{args.file}' not found")
         sys.exit(1)
     
-    # Determine assembly syntax
+    # Determine file type and assembly syntax
     if args.auto_detect:
+        detected_file_type = AssemblyParserFactory.detect_file_type(args.file)
         detected_syntax = AssemblyParserFactory.detect_syntax(args.file)
+        file_type = detected_file_type.value
         syntax = detected_syntax.value
+        print(f"Auto-detected file type: {file_type.upper()}")
         print(f"Auto-detected assembly syntax: {syntax.upper()}")
     else:
+        file_type = args.type
         syntax = args.syntax
+        print(f"Using file type: {file_type.upper()}")
         print(f"Using assembly syntax: {syntax.upper()}")
     
     # Create output directory if needed
     if args.export_dot or args.export_all_dot:
         Path(args.output_dir).mkdir(exist_ok=True)
     
-    if args.function:
-        # Parse specific function
-        cfg = parse_specific_function(args.file, args.function, args.verbose, args.detailed, syntax)
-        
-        if cfg and args.export_dot:
-            include_instructions = not args.no_instructions
-            export_function_cfg(cfg, args.function, args.output_dir, include_instructions, args.max_instructions)
+    try:
+        if args.function:
+            # Parse specific function
+            cfg = parse_specific_function(args.file, args.function, args.verbose, args.detailed, syntax, file_type)
             
-    else:
-        # Parse all functions
-        cfgs = parse_all_functions(args.file, summary_only=not args.detailed, syntax=syntax)
-        
-        if cfgs and args.export_all_dot:
-            include_instructions = not args.no_instructions
-            export_all_cfgs(cfgs, args.output_dir, include_instructions, args.max_instructions)
+            if cfg and args.export_dot:
+                include_instructions = not args.no_instructions
+                export_function_cfg(cfg, args.function, args.output_dir, include_instructions, args.max_instructions)
+                
+        else:
+            # Parse all functions
+            cfgs = parse_all_functions(args.file, summary_only=not args.detailed, syntax=syntax, file_type=file_type)
+            
+            if cfgs and args.export_all_dot:
+                include_instructions = not args.no_instructions
+                export_all_cfgs(cfgs, args.output_dir, include_instructions, args.max_instructions)
+    
+    except Exception:
+        # Error already printed by parse functions
+        sys.exit(1)
     
     if args.json:
         # TODO: Add JSON serialization of CFG data

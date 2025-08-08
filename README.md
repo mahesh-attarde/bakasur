@@ -2,16 +2,26 @@
 PET Project For easing my own work around analysing large assembly files.
 
 
-A comprehensive Control Flow Graph analysis toolkit for assembly code with loop detection and visualization capabilities. **Now supports both Intel and AT&T assembly syntax!**
+A comprehensive Control Flow Graph analysis toolkit for assembly code with loop detection and visualization capabilities. **Now supports Intel and AT&T assembly syntax, plus direct object file analysis!**
 !!! Dont use handwritten assembly yet!!
 ## Features
 
 - **Multi-Syntax Support**: Supports both Intel and AT&T assembly syntax with automatic detection
 - **Assembly Parsing**: Robust parsing of assembly files with function detection
+- **Object File Support**: Direct analysis of object files (.o, .obj, .so, etc.) with automatic objdump execution
+- **Objdump Integration**: Seamless processing of objdump output files
 - **CFG Construction**: Automatic basic block identification and control flow graph building
 - **Loop Detection**: DFS-based back edge detection for loop identification
 - **Visualization**: GraphViz DOT export with professional styling and left-aligned text
-- **Command-Line Interface**: Easy-to-use tool for analyzing assembly files
+- **Command-Line Interface**: Easy-to-use tool for analyzing multiple file types
+
+## Supported File Types
+
+The tool supports three types of input files:
+
+1. **Assembly Source Files** (`.s`, `.asm`): Direct assembly source code
+2. **Object Files** (`.o`, `.obj`, `.so`, `.a`, `.dylib`, `.dll`): Compiled object files (automatically executes objdump)
+3. **Objdump Output Files** (`.dump`, `.objdump`): Pre-generated objdump output
 
 ## Assembly Syntax Support
 
@@ -22,7 +32,7 @@ The tool supports both major x86 assembly syntaxes:
 
 ### Syntax Detection
 - **Manual**: Use `-s intel` or `-s att` to specify syntax
-- **Automatic**: Use `--auto-detect` to automatically detect syntax from file content
+- **Automatic**: Use `--auto-detect` to automatically detect syntax from file content (recommended)
 
 ## Project Structure
 
@@ -33,7 +43,8 @@ cfg-analyzer/
 │       ├── __init__.py     # Package initialization
 │       ├── base_parser.py  # Base parser class with common functionality
 │       ├── intel_parser.py # Intel syntax parser
-│       ├── att_parser.py   # AT&T syntax parser  
+│       ├── att_parser.py   # AT&T syntax parser
+│       ├── objdump_parser.py # Objdump and object file parser
 │       ├── parser_factory.py # Parser factory and syntax detection
 │       ├── models.py       # Data structures (Instruction, BasicBlock, CFG)
 │       └── visualization.py # DOT export and printing functions
@@ -44,10 +55,14 @@ cfg-analyzer/
 │   ├── test_visualization.py # Tests for visualization
 │   ├── test_integration.py # Integration tests
 │   └── run_tests.py        # Test runner
-├── test_data/              # Test assembly files
-│   ├── test_simple_loop.s  # Simple loop test case (Intel)
-│   ├── test_simple_loop_att.s # Simple loop test case (AT&T)
-│   └── MonteCarlo_demo.s   # Complex real-world example
+├── test_data/              # Test files
+│   ├── test_simple_loop.s  # Simple loop test case (Intel assembly)
+│   ├── test_simple_loop_att.s # Simple loop test case (AT&T assembly)
+│   ├── test_simple_loop_att.o # Simple loop object file
+│   ├── test_simple_loop_att.obj.dump # Pre-generated objdump output
+│   ├── MonteCarlo_demo.s   # Complex real-world example (assembly)
+│   ├── MonteCarlo_demo.o   # Complex real-world example (object file)
+│   └── MonteCarlo_demo.obj.dump # Complex real-world example (objdump)
 ├── cfg_tool.py             # Command-line interface
 └── README.md               # This file
 ```
@@ -60,10 +75,32 @@ No installation required. This is a standalone Python project.
 
 - Python 3.6+
 - GraphViz (for PNG generation from DOT files)
+- `objdump` (part of binutils package) for object file analysis
+
+### Installing objdump
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install binutils
+```
+
+**CentOS/RHEL/Fedora:**
+```bash
+sudo yum install binutils        # CentOS/RHEL
+sudo dnf install binutils        # Fedora
+```
+
+**macOS:**
+```bash
+# Usually pre-installed, or install via Xcode tools
+xcode-select --install
+```
 
 ## Usage
 
 ### Command Line Tool
+
+#### Basic Usage (Assembly Files)
 
 ```bash
 # Analyze all functions in an assembly file (Intel syntax, default)
@@ -73,7 +110,7 @@ python cfg_tool.py program.s
 python cfg_tool.py program.s -s att          # AT&T syntax
 python cfg_tool.py program.s -s intel        # Intel syntax (default)
 
-# Auto-detect syntax
+# Auto-detect syntax (recommended)
 python cfg_tool.py program.s --auto-detect
 
 # Analyze specific function with AT&T syntax
@@ -86,21 +123,63 @@ python cfg_tool.py program.s -f function_name --export-dot -s att
 python cfg_tool.py program.s --export-all-dot --max-instructions 5 -o output_dir
 ```
 
-#### Syntax Examples
+#### Object File Analysis (New!)
 
-**Intel Syntax (default):**
+The tool can directly analyze object files by automatically executing objdump:
+
+```bash
+# Analyze object file directly (auto-executes objdump)
+python cfg_tool.py program.o --auto-detect
+
+# Analyze specific function in object file
+python cfg_tool.py program.o -f function_name --auto-detect -v
+
+# Export CFG from object file
+python cfg_tool.py program.o -f function_name --export-dot --auto-detect
+
+# Analyze all functions in object file with detailed output
+python cfg_tool.py program.o --detailed --auto-detect
+```
+
+#### Objdump File Analysis
+
+You can also analyze pre-generated objdump output files:
+
+```bash
+# Analyze existing objdump file
+python cfg_tool.py program.obj.dump -t objdump -f function_name
+
+# Auto-detect objdump format
+python cfg_tool.py program.obj.dump --auto-detect -f function_name
+```
+
+#### Real Examples
+
+**Assembly Files (Intel Syntax):**
 ```bash
 python cfg_tool.py test_data/test_simple_loop.s -f simple_loop_function -v
 ```
 
-**AT&T Syntax:**
+**Assembly Files (AT&T Syntax):**
 ```bash
 python cfg_tool.py test_data/test_simple_loop_att.s -f simple_loop_function_att -s att -v
 ```
 
-**Auto-detection:**
+**Object Files (Recommended - Auto-detection):**
 ```bash
-python cfg_tool.py test_data/test_simple_loop_att.s --auto-detect -f simple_loop_function_att -v
+# Simple function analysis
+python cfg_tool.py test_data/test_simple_loop_att.o -f simple_loop_function_att --auto-detect -v
+
+# Complex function analysis
+python cfg_tool.py test_data/MonteCarlo_demo.o -f MonteCarlo_integrate --auto-detect
+
+# Export to DOT format
+python cfg_tool.py test_data/test_simple_loop_att.o -f simple_loop_function_att --export-dot --auto-detect
+```
+
+**Objdump Files:**
+```bash
+python cfg_tool.py test_data/MonteCarlo_demo.obj.dump -f MonteCarlo_integrate --auto-detect -v
 ```
 ## Examples
 

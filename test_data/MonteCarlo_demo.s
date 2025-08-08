@@ -1,6 +1,6 @@
 # Create a simple assembly file that works with our existing parser
 # This is a subset of the MonteCarlo_integrate function for demonstration
-
+	.intel_syntax noprefix
 	.text
 	.globl	MonteCarlo_integrate
 	.type	MonteCarlo_integrate, @function
