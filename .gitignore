@@ -34,5 +34,3 @@ Thumbs.db
 build_/
 dot_output*/
 final_test*/
-*.dot
-*.png

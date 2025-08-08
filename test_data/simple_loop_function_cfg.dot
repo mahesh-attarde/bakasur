@@ -1,0 +1,20 @@
+digraph "simple_loop_function" {
+  rankdir=TB;
+  node [shape=box, fontname="Consolas", fontsize=10, margin=0.1, labeljust=l];
+  edge [fontname="Arial", fontsize=9];
+  graph [bgcolor=white, splines=true, nodesep=0.3, ranksep=0.5];
+
+  "bb_0" [label="[bb_0] ENTRY\lLines: 4-8\l====================\l  push rbp\l  mov rbp, rsp\l  mov eax, 0\l", style="filled,bold", fillcolor=lightgreen, color=darkgreen, penwidth=2];
+  "loop_start" [label="[loop_start]\lLines: 9-12\l====================\l  inc eax\l  cmp eax, 10\l> jl .loop_start     # Back edge - should be... [TERM]\l-> loop_start\l", style=filled, fillcolor=white, color=black, penwidth=1];
+  "bb_9" [label="[bb_9]\lLines: 13-13\l====================\l  mov ecx, 0\l", style=filled, fillcolor=white, color=black, penwidth=1];
+  "inner_loop" [label="[inner_loop]\lLines: 14-17\l====================\l  inc ecx\l  cmp ecx, 5\l> jl .inner_loop     # Back edge - should be... [TERM]\l-> inner_loop\l", style=filled, fillcolor=white, color=black, penwidth=1];
+  "bb_14" [label="[bb_14] EXIT\lLines: 18-18\l====================\l> ret [TERM]\l", style="filled,bold", fillcolor=lightcoral, color=darkred, penwidth=2];
+  "Lfunc_end0" [label="[Lfunc_end0] UNREACHABLE\lLines: 19-19\l========================\l(no instructions)\l", style="filled,dashed", fillcolor=lightgrey, color=grey, penwidth=1];
+
+  "bb_0" -> "loop_start" [color=black, penwidth=1.2, arrowhead=normal];
+  "loop_start" -> "bb_9" [color=black, penwidth=1.2, arrowhead=normal];
+  "loop_start" -> "loop_start" [color=red, penwidth=2.5, style=bold, arrowhead=vee];
+  "bb_9" -> "inner_loop" [color=black, penwidth=1.2, arrowhead=normal];
+  "inner_loop" -> "bb_14" [color=black, penwidth=1.2, arrowhead=normal];
+  "inner_loop" -> "inner_loop" [color=red, penwidth=2.5, style=bold, arrowhead=vee];
+}
