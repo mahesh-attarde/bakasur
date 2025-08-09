@@ -1,0 +1,22 @@
+
+test_simple_loop_att.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <simple_loop_function_att>:
+   0:	push   %rbp
+   1:	mov    %rsp,%rbp
+   4:	mov    $0x0,%eax
+
+0000000000000009 <.loop_start>:
+   9:	inc    %eax
+   b:	cmp    $0xa,%eax
+   e:	jl     9 <.loop_start>
+  10:	mov    $0x0,%ecx
+
+0000000000000015 <.inner_loop>:
+  15:	inc    %ecx
+  17:	cmp    $0x5,%ecx
+  1a:	jl     15 <.inner_loop>
+  1c:	ret

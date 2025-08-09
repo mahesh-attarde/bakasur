@@ -1,0 +1,233 @@
+
+MonteCarlo_demo.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <MonteCarlo_integrate>:
+   0:	push   %rbp
+   1:	push   %r15
+   3:	push   %r14
+   5:	push   %r13
+   7:	push   %r12
+   9:	push   %rbx
+   a:	sub    $0xe8,%rsp
+  11:	mov    0x11c(%rdi),%eax
+  17:	test   %eax,%eax
+  19:	jle    170 <MonteCarlo_integrate+0x170>
+  1f:	mov    %rdi,%r14
+  22:	xor    %ebx,%ebx
+  24:	cmp    $0x20,%al
+  26:	jne    19f <MonteCarlo_integrate+0x19f>
+  2c:	mov    %edx,0x10(%rsp)
+  30:	call   35 <MonteCarlo_integrate+0x35>
+  35:	mov    %eax,%edx
+  37:	and    $0xfff,%edx
+  3d:	cmp    %rdx,0x48(%rsp)
+  42:	jb     62 <MonteCarlo_integrate+0x62>
+  44:	lea    (%rax,%rdx,1),%esi
+  47:	and    $0xfff,%esi
+  4d:	vmovss (%rcx,%rsi,4),%xmm0
+  52:	vmovss %xmm0,(%r14,%rdx,4)
+  58:	inc    %rdx
+  5b:	cmp    %rdx,%r12
+  5e:	jne    44 <MonteCarlo_integrate+0x44>
+  60:	jmp    99 <MonteCarlo_integrate+0x99>
+  62:	test   %rbp,%rbp
+  65:	je     79 <MonteCarlo_integrate+0x79>
+  67:	lea    (%rdx,%rax,1),%esi
+  6a:	vmovd  %esi,%xmm0
+  6e:	add    $0x8,%rdx
+  72:	cmp    %rdi,%rdx
+  75:	jne    67 <MonteCarlo_integrate+0x67>
+  77:	jmp    99 <MonteCarlo_integrate+0x99>
+  79:	xor    %edx,%edx
+  7b:	jmp    7d <MonteCarlo_integrate+0x7d>
+  7d:	lea    (%rax,%rdx,1),%esi
+  80:	and    $0xfff,%esi
+  86:	vmovss (%rcx,%rsi,4),%xmm0
+  8b:	vmovss %xmm0,(%r14,%rdx,4)
+  91:	inc    %rdx
+  94:	cmp    %rdx,%r12
+  97:	jne    7d <MonteCarlo_integrate+0x7d>
+  99:	call   9e <MonteCarlo_integrate+0x9e>
+  9e:	mov    0x20(%rsp),%rdx
+  a3:	add    %eax,%edx
+  a5:	and    $0xfff,%edx
+  ab:	lea    (%rcx,%rdx,4),%rdx
+  af:	cmp    %r15,%rdx
+  b2:	jb     d2 <MonteCarlo_integrate+0xd2>
+  b4:	lea    (%rax,%rdx,1),%esi
+  b7:	and    $0xfff,%esi
+  bd:	vmovss (%rcx,%rsi,4),%xmm0
+  c2:	vmovss %xmm0,(%r15,%rdx,4)
+  c8:	inc    %rdx
+  cb:	cmp    %rdx,%r12
+  ce:	jne    b4 <MonteCarlo_integrate+0xb4>
+  d0:	jmp    109 <MonteCarlo_integrate+0x109>
+  d2:	test   %rbp,%rbp
+  d5:	je     e9 <MonteCarlo_integrate+0xe9>
+  d7:	lea    (%rdx,%rax,1),%esi
+  da:	vmovd  %esi,%xmm0
+  de:	add    $0x8,%rdx
+  e2:	cmp    %rdi,%rdx
+  e5:	jne    d7 <MonteCarlo_integrate+0xd7>
+  e7:	jmp    109 <MonteCarlo_integrate+0x109>
+  e9:	xor    %edx,%edx
+  eb:	jmp    ed <MonteCarlo_integrate+0xed>
+  ed:	lea    (%rax,%rdx,1),%esi
+  f0:	and    $0xfff,%esi
+  f6:	vmovss (%rcx,%rsi,4),%xmm0
+  fb:	vmovss %xmm0,(%r15,%rdx,4)
+ 101:	inc    %rdx
+ 104:	cmp    %rdx,%r12
+ 107:	jne    ed <MonteCarlo_integrate+0xed>
+ 109:	vmovq  %xmm6,%rax
+ 10e:	test   %rax,%rax
+ 111:	je     128 <MonteCarlo_integrate+0x128>
+ 113:	vmovups (%r14,%rax,4),%ymm2
+ 119:	vmulps %ymm2,%ymm2,%ymm2
+ 11d:	add    $0x8,%rax
+ 121:	cmp    %rdi,%rax
+ 124:	jne    113 <MonteCarlo_integrate+0x113>
+ 126:	jmp    138 <MonteCarlo_integrate+0x138>
+ 128:	xor    %eax,%eax
+ 12a:	vmovss 0x0(%rip),%xmm2        # 132 <MonteCarlo_integrate+0x132>
+ 132:	mov    0x10(%rsp),%edx
+ 136:	jmp    156 <MonteCarlo_integrate+0x156>
+ 138:	vpshufd $0xee,%xmm0,%xmm1
+ 13d:	vpaddd %xmm1,%xmm0,%xmm0
+ 141:	add    %ecx,%ebx
+ 143:	jmp    145 <MonteCarlo_integrate+0x145>
+ 145:	inc    %edx
+ 147:	cmp    0xc(%rsp),%edx
+ 14b:	je     300 <MonteCarlo_integrate+0x300>
+ 151:	jmp    2c <MonteCarlo_integrate+0x2c>
+ 156:	vmovss (%r14,%rax,4),%xmm0
+ 15c:	vmovss (%r15,%rax,4),%xmm1
+ 162:	vmulss %xmm0,%xmm0,%xmm0
+ 166:	inc    %rax
+ 169:	cmp    %rax,%r12
+ 16c:	jne    156 <MonteCarlo_integrate+0x156>
+ 16e:	jmp    145 <MonteCarlo_integrate+0x145>
+ 170:	cmpl   $0x8,0xc(%rsp)
+ 175:	jb     177 <MonteCarlo_integrate+0x177>
+ 177:	mov    0xc(%rsp),%ebx
+ 17b:	mov    %ebx,%eax
+ 17d:	and    $0x7ffffff8,%eax
+ 182:	sub    %eax,%ebx
+ 184:	je     196 <MonteCarlo_integrate+0x196>
+ 186:	mov    0x178(%r14),%rdi
+ 18d:	call   192 <MonteCarlo_integrate+0x192>
+ 192:	dec    %ebx
+ 194:	jne    186 <MonteCarlo_integrate+0x186>
+ 196:	vxorps %xmm1,%xmm1,%xmm1
+ 19a:	jmp    30c <MonteCarlo_integrate+0x30c>
+ 19f:	xor    %edx,%edx
+ 1a1:	jmp    1af <MonteCarlo_integrate+0x1af>
+ 1a3:	inc    %edx
+ 1a5:	cmp    0xc(%rsp),%edx
+ 1a9:	je     300 <MonteCarlo_integrate+0x300>
+ 1af:	mov    %edx,0x10(%rsp)
+ 1b3:	call   1b8 <MonteCarlo_integrate+0x1b8>
+ 1b8:	mov    0x20(%rsp),%rdx
+ 1bd:	add    %eax,%edx
+ 1bf:	and    $0xfff,%edx
+ 1c5:	lea    (%rcx,%rdx,4),%rdx
+ 1c9:	cmp    %rdx,0x48(%rsp)
+ 1ce:	jb     1ee <MonteCarlo_integrate+0x1ee>
+ 1d0:	lea    (%rax,%rdx,1),%esi
+ 1d3:	and    $0xfff,%esi
+ 1d9:	vmovss (%rcx,%rsi,4),%xmm0
+ 1de:	vmovss %xmm0,(%r14,%rdx,4)
+ 1e4:	inc    %rdx
+ 1e7:	cmp    %rdx,%r12
+ 1ea:	jne    1d0 <MonteCarlo_integrate+0x1d0>
+ 1ec:	jmp    22c <MonteCarlo_integrate+0x22c>
+ 1ee:	test   %rbp,%rbp
+ 1f1:	je     20c <MonteCarlo_integrate+0x20c>
+ 1f3:	lea    (%rdx,%rax,1),%esi
+ 1f6:	and    $0xfff,%esi
+ 1fc:	vmovss (%rcx,%rsi,4),%xmm0
+ 201:	add    $0x4,%rdx
+ 205:	cmp    %rdi,%rdx
+ 208:	jne    1f3 <MonteCarlo_integrate+0x1f3>
+ 20a:	jmp    22c <MonteCarlo_integrate+0x22c>
+ 20c:	xor    %esi,%esi
+ 20e:	jmp    210 <MonteCarlo_integrate+0x210>
+ 210:	lea    (%rax,%rsi,1),%edx
+ 213:	and    $0xfff,%edx
+ 219:	vmovss (%rcx,%rdx,4),%xmm0
+ 21e:	vmovss %xmm0,(%r14,%rsi,4)
+ 224:	inc    %rsi
+ 227:	cmp    %rsi,%r12
+ 22a:	jne    210 <MonteCarlo_integrate+0x210>
+ 22c:	call   231 <MonteCarlo_integrate+0x231>
+ 231:	mov    0x20(%rsp),%rdx
+ 236:	add    %eax,%edx
+ 238:	and    $0xfff,%edx
+ 23e:	lea    (%rcx,%rdx,4),%rdx
+ 242:	cmp    %r15,%rdx
+ 245:	jb     265 <MonteCarlo_integrate+0x265>
+ 247:	lea    (%rax,%rdx,1),%esi
+ 24a:	and    $0xfff,%esi
+ 250:	vmovss (%rcx,%rsi,4),%xmm0
+ 255:	vmovss %xmm0,(%r15,%rdx,4)
+ 25b:	inc    %rdx
+ 25e:	cmp    %rdx,%r12
+ 261:	jne    247 <MonteCarlo_integrate+0x247>
+ 263:	jmp    2a3 <MonteCarlo_integrate+0x2a3>
+ 265:	test   %rbp,%rbp
+ 268:	je     283 <MonteCarlo_integrate+0x283>
+ 26a:	lea    (%rdx,%rax,1),%esi
+ 26d:	and    $0xfff,%esi
+ 273:	vmovss (%rcx,%rsi,4),%xmm0
+ 278:	add    $0x4,%rdx
+ 27c:	cmp    %r10,%rdx
+ 27f:	jne    26a <MonteCarlo_integrate+0x26a>
+ 281:	jmp    2a3 <MonteCarlo_integrate+0x2a3>
+ 283:	xor    %esi,%esi
+ 285:	jmp    287 <MonteCarlo_integrate+0x287>
+ 287:	lea    (%rax,%rsi,1),%edx
+ 28a:	and    $0xfff,%edx
+ 290:	vmovss (%rcx,%rdx,4),%xmm0
+ 295:	vmovss %xmm0,(%r15,%rsi,4)
+ 29b:	inc    %rsi
+ 29e:	cmp    %rsi,%r12
+ 2a1:	jne    287 <MonteCarlo_integrate+0x287>
+ 2a3:	vmovq  %xmm6,%rax
+ 2a8:	test   %rax,%rax
+ 2ab:	je     2c2 <MonteCarlo_integrate+0x2c2>
+ 2ad:	vmovups (%r14,%rax,4),%ymm2
+ 2b3:	vmulps %ymm2,%ymm2,%ymm2
+ 2b7:	add    $0x8,%rax
+ 2bb:	cmp    %r10,%rax
+ 2be:	jne    2ad <MonteCarlo_integrate+0x2ad>
+ 2c0:	jmp    2d2 <MonteCarlo_integrate+0x2d2>
+ 2c2:	xor    %eax,%eax
+ 2c4:	vmovss 0x0(%rip),%xmm3        # 2cc <MonteCarlo_integrate+0x2cc>
+ 2cc:	mov    0x10(%rsp),%edx
+ 2d0:	jmp    2e3 <MonteCarlo_integrate+0x2e3>
+ 2d2:	vpshufd $0xee,%xmm0,%xmm1
+ 2d7:	vpaddd %xmm1,%xmm0,%xmm0
+ 2db:	add    %ecx,%ebx
+ 2dd:	jne    1a3 <MonteCarlo_integrate+0x1a3>
+ 2e3:	vmovss (%r14,%rax,4),%xmm0
+ 2e9:	vmovss (%r15,%rax,4),%xmm1
+ 2ef:	vmulss %xmm0,%xmm0,%xmm0
+ 2f3:	inc    %rax
+ 2f6:	cmp    %rax,%r12
+ 2f9:	jne    2e3 <MonteCarlo_integrate+0x2e3>
+ 2fb:	jmp    1a3 <MonteCarlo_integrate+0x1a3>
+ 300:	vcvtsi2ss %ebx,%xmm15,%xmm0
+ 304:	vmulss 0x0(%rip),%xmm0,%xmm1        # 30c <MonteCarlo_integrate+0x30c>
+ 30c:	vcvtsi2ssl 0xc(%rsp),%xmm15,%xmm0
+ 312:	vdivss %xmm0,%xmm1,%xmm0
+ 316:	add    $0xe8,%rsp
+ 31d:	pop    %rbx
+ 31e:	pop    %r12
+ 320:	pop    %r13
+ 322:	pop    %r14
+ 324:	pop    %r15
+ 326:	pop    %rbp
+ 327:	ret
