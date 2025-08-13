@@ -1,10 +1,17 @@
 # Bakasur - Assembly Analysis Toolkit
 PET Project For easing my own work around analysing large assembly files.
 
-A comprehensive assembly analysis toolkit with both **Control Flow Graph (CFG)** analysis and **Data Flow** analysis capabilities. Features loop detection, dependency tracking, and professional visualization. **Now supports Intel and AT&T assembly syntax, plus direct object file analysis!**
+A comprehensive assembly analysis toolkit with both **Control Flow Graph (CFG)** analysis and **Data Flow Graph (DFG)** analysis capabilities. Features loop detection, dependency tracking, and professional visualization. **Now supports Intel and AT&T assembly syntax, plus direct object file analysis, and MULTIPLE ARCHITECTURES!**
 
 !!! Don't use handwritten assembly yet!!
 ## Features
+
+### Multi-Architecture Support 🏗️
+- **x86_64**: Full Intel/AMD x86-64 support with AVX-512, SIMD, and mask registers
+- **ARM64/AArch64**: Complete ARM64 support with NEON vector instructions
+- **Extensible**: JSON-based architecture configuration for easy extension to new ISAs
+- **Auto-Detection**: Automatic architecture detection from assembly code
+- **Architecture-Specific**: Optimized instruction classification and register handling per architecture
 
 ### Control Flow Graph (CFG) Analysis
 - **Multi-Syntax Support**: Supports both Intel and AT&T assembly syntax with automatic detection
@@ -15,17 +22,82 @@ A comprehensive assembly analysis toolkit with both **Control Flow Graph (CFG)**
 - **Loop Detection**: DFS-based back edge detection for loop identification
 - **Visualization**: GraphViz DOT export with professional styling and left-aligned text
 
-### Data Flow Analysis
+### Data Flow Graph (DFG) Analysis
+- **Multi-Architecture**: Supports x86_64 and ARM64 with architecture-specific optimizations
 - **Dependency Tracking**: RAW (Read After Write), WAW (Write After Write), WAR (Write After Read) analysis
-- **Mask Register Support**: Full x86-64 SIMD mask register (k1-k7) dependency detection
+- **Architecture-Aware Registers**: Proper register aliasing and normalization per architecture
 - **Memory Aliasing**: Advanced memory dependency analysis with operand normalization
 - **Loop-Carried Dependencies**: Detection of dependencies that span loop iterations
 - **Instruction Chains**: Detailed visualization of dependency relationships
 - **Statistics**: Comprehensive hazard analysis and performance metrics
+- **ASCII Visualization**: Unicode flow diagrams and terminal-ready output
 
 ### General Features
 - **Command-Line Interface**: Easy-to-use tools for analyzing multiple file types
 - **Production Ready**: Clean codebase with comprehensive test coverage (228 tests)
+
+## Main Tools
+
+### `cfg_tool.py` - Control Flow Graph Analysis
+```bash
+# Analyze assembly file
+python cfg_tool.py example.s
+
+# Analyze object file with automatic objdump
+python cfg_tool.py example.o --auto-detect
+
+# Export specific function to DOT
+python cfg_tool.py file.s -f main --export-dot
+
+# Verbose analysis with detailed output
+python cfg_tool.py file.s --verbose --detailed
+```
+
+### `dfg_tool.py` - Data Flow Graph Analysis
+```bash
+# Enhanced ASCII visualization (auto-detect architecture)
+python dfg_tool.py example.s --style enhanced
+
+# Specify architecture explicitly
+python dfg_tool.py arm_code.s --arch aarch64
+
+# Generate SVG dependency graph
+python dfg_tool.py loop.s --svg --output loop_dataflow
+
+# List available architectures
+python dfg_tool.py --list-archs
+
+# Comprehensive analysis report
+python dfg_tool.py complex.s --style comprehensive
+
+# Demo with sample assembly (x86_64 or ARM64)
+python dfg_tool.py --demo --arch x86_64
+python dfg_tool.py --demo --arch aarch64
+```
+
+## Supported Architectures
+
+The tool supports multiple processor architectures through JSON configuration files:
+
+- **x86_64**: Intel/AMD 64-bit (172 registers)
+  - General Purpose: RAX, RBX, RCX, RDX, RSI, RDI, R8-R15
+  - SIMD: XMM0-XMM31, YMM0-YMM31, ZMM0-ZMM31
+  - Mask: k0-k7 registers
+- **ARM64/AArch64**: ARM 64-bit (163 registers)  
+  - General Purpose: X0-X30, W0-W30
+  - NEON/SIMD: V0-V31, Q0-Q31, D0-D31, S0-S31
+  - Special: SP, LR, XZR, WZR
+- **RISC-V 64-bit**: RISC-V 64-bit (97 registers)
+  - General Purpose: x0-x31 (zero, ra, sp, gp, tp, t0-t6, s0-s11, a0-a7)
+  - Floating Point: f0-f31
+  - Register aliases: zero, ra, sp, gp, tp, fp, etc.
+
+### Architecture Configuration
+Each architecture is defined in `src/dfg_analyzer/architectures/*.json`:
+- Register definitions and aliases
+- Instruction categories and behaviors  
+- Memory syntax patterns
+- Special instruction handling
 
 ## Supported File Types
 
@@ -50,54 +122,65 @@ The tool supports both major x86 assembly syntaxes:
 
 ```
 bakasur/                          # Assembly Analysis Toolkit
-├── dataflow_analyzer.py          # 🎯 MAIN DATA FLOW ANALYSIS TOOL
 ├── cfg_tool.py                   # 📊 CFG Analysis tool  
-├── data_flow_visualizer.py       # 🔧 Advanced dataflow engine
-├── enhanced_dataflow_visualizer.py # 🎨 Enhanced visualization
-├── setup.py                      # 📦 Package installation
-├── cleanup.sh                    # 🧹 Maintenance script
-├── validate_production.sh        # ✅ Production validation
+├── dfg_tool.py                   # � DFG Analysis tool (NEW)
+├── setup.py                     # 📦 Package installation
+├── cleanup.sh                   # 🧹 Maintenance script
+├── validate_production.sh       # ✅ Production validation
 │
-├── src/                          # Core library source code
-│   └── cfg_analyzer/             # CFG analysis package
-│       ├── __init__.py           # Package initialization
-│       ├── base_parser.py        # Base parser class with common functionality
-│       ├── intel_parser.py       # Intel syntax parser
-│       ├── att_parser.py         # AT&T syntax parser
-│       ├── objdump_parser.py     # Objdump and object file parser
-│       ├── parser_factory.py     # Parser factory and syntax detection
-│       ├── models.py             # Data structures (Instruction, BasicBlock, CFG)
-│       └── visualization.py      # DOT export and printing functions
+├── src/                         # Core library source code
+│   ├── cfg_analyzer/            # CFG analysis package
+│   │   ├── __init__.py          # Package initialization
+│   │   ├── base_parser.py       # Base parser class with common functionality
+│   │   ├── intel_parser.py      # Intel syntax parser
+│   │   ├── att_parser.py        # AT&T syntax parser
+│   │   ├── objdump_parser.py    # Objdump and object file parser
+│   │   ├── parser_factory.py    # Parser factory and syntax detection
+│   │   ├── models.py            # Data structures (Instruction, BasicBlock, CFG)
+│   │   └── visualization.py     # DOT export and printing functions
+│   └── dfg_analyzer/            # DFG analysis package (MULTI-ARCHITECTURE)
+│       ├── __init__.py          # Package initialization
+│       ├── models.py            # Data structures (Instruction, DataDependency)
+│       ├── arch_config.py       # 🏗️ Architecture configuration loader
+│       ├── generic_parser.py    # 🔧 Generic architecture-aware parser
+│       ├── parser.py            # Legacy Intel assembly parser (compat)
+│       ├── analyzer.py          # 🧠 Multi-architecture data flow analysis engine
+│       ├── visualization.py     # Graphviz visualization
+│       ├── enhanced_visualizer.py # ASCII art and enhanced output
+│       ├── ascii_visualizer.py  # Simple ASCII visualization
+│       └── architectures/       # 📋 Architecture configurations
+│           ├── x86_64.json      # Intel/AMD x86-64 configuration
+│           └── aarch64.json     # ARM64/AArch64 configuration
 │
-├── tests/                        # Comprehensive test suite (228 tests)
-│   ├── test_models.py            # Tests for data structures
-│   ├── test_parser.py            # Tests for parsing logic
-│   ├── test_syntax_support.py    # Tests for syntax support
-│   ├── test_visualization.py     # Tests for visualization
-│   ├── test_dataflow_*.py        # Tests for dataflow analysis
+├── tests/                       # Comprehensive test suite (228 tests)
+│   ├── test_models.py           # Tests for data structures
+│   ├── test_parser.py           # Tests for parsing logic
+│   ├── test_syntax_support.py   # Tests for syntax support
+│   ├── test_visualization.py    # Tests for visualization
+│   ├── test_dataflow_*.py       # Tests for dataflow analysis
 │   ├── test_memory_dependencies.py # Tests for memory dependency analysis
-│   ├── test_integration.py       # Integration tests
-│   └── run_tests.py              # Test runner
+│   ├── test_integration.py      # Integration tests
+│   └── run_tests.py             # Test runner
 │
-├── test_data/                    # Test files and examples
-│   ├── test_simple_loop.s        # Simple loop test case (Intel assembly)
-│   ├── test_simple_loop_att.s    # Simple loop test case (AT&T assembly)
-│   ├── test_simple_loop_att.o    # Simple loop object file
+├── test_data/                   # Test files and examples
+│   ├── test_simple_loop.s       # Simple loop test case (Intel assembly)
+│   ├── test_simple_loop_att.s   # Simple loop test case (AT&T assembly)
+│   ├── test_simple_loop_att.o   # Simple loop object file
 │   ├── test_simple_loop_att.obj.dump # Pre-generated objdump output
-│   ├── MonteCarlo_demo.s         # Complex real-world example (assembly)
-│   ├── MonteCarlo_demo.o         # Complex real-world example (object file)
-│   └── MonteCarlo_demo.obj.dump  # Complex real-world example (objdump)
+│   ├── MonteCarlo_demo.s        # Complex real-world example (assembly)
+│   ├── MonteCarlo_demo.o        # Complex real-world example (object file)
+│   └── MonteCarlo_demo.obj.dump # Complex real-world example (objdump)
 │
-├── build/                        # Archived and experimental files
-│   ├── deprecated/               # Old versions
-│   ├── experimental/             # Prototype implementations
-│   ├── test_artifacts/           # Test outputs and examples
-│   └── cache/                    # Temporary files
+├── build/                       # Archived and experimental files
+│   ├── deprecated/              # Old versions
+│   ├── experimental/            # Prototype implementations
+│   ├── test_artifacts/          # Test outputs and examples
+│   └── cache/                   # Temporary files
 │
-└── docs/                         # Documentation
-    ├── README.md                 # This file
-    ├── DEVELOPMENT.md            # Developer guide
-    ├── PRODUCTION_README.md      # Production quick-start
+└── docs/                        # Documentation
+    ├── README.md                # This file
+    ├── DEVELOPMENT.md           # Developer guide
+    ├── PRODUCTION_README.md     # Production quick-start
     └── *.md                      # Additional documentation
 ```
 
@@ -134,16 +217,29 @@ xcode-select --install
 
 ### Quick Start
 
-#### Data Flow Analysis (Main Tool)
+#### Data Flow Graph (DFG) Analysis
 ```bash
-# Analyze assembly dataflow dependencies
-python3 dataflow_analyzer.py your_file.s
+# Auto-detect architecture and analyze
+python3 dfg_tool.py your_file.s --style enhanced
 
-# Example with test file
-python3 dataflow_analyzer.py test_data/test_simple_loop.s
+# Specify architecture explicitly 
+python3 dfg_tool.py arm_code.s --arch aarch64
+
+# Generate interactive SVG
+python3 dfg_tool.py your_file.s --svg --output analysis
+
+# List available architectures
+python3 dfg_tool.py --list-archs
+
+# Comprehensive analysis report
+python3 dfg_tool.py your_file.s --style comprehensive
+
+# Demo with different architectures
+python3 dfg_tool.py --demo --arch x86_64
+python3 dfg_tool.py --demo --arch aarch64
 ```
 
-#### CFG Analysis Tool
+#### Control Flow Graph (CFG) Analysis
 ```bash
 # Analyze control flow graph
 python3 cfg_tool.py program.s -f function_name --export-dot
@@ -152,13 +248,13 @@ python3 cfg_tool.py program.s -f function_name --export-dot
 python3 cfg_tool.py program.o --auto-detect -f function_name -v
 ```
 
-### Data Flow Analysis Features
+### Data Flow Graph (DFG) Analysis Features
 
-The `dataflow_analyzer.py` tool provides comprehensive dependency analysis:
+The `dfg_tool.py` tool provides comprehensive dependency analysis:
 
 ```bash
 # Basic usage
-python3 dataflow_analyzer.py assembly_file.s
+python3 dfg_tool.py assembly_file.s
 
 # Example output includes:
 # - RAW (Read After Write) dependencies

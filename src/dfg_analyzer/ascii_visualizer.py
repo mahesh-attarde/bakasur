@@ -1,23 +1,12 @@
 #!/usr/bin/env python3
+"""
+ASCII Data Flow Visualizer for Assembly Analysis
+
+Simple ASCII visualization for data flow dependencies.
+"""
 
 import re
-
-class Instruction:
-    def __init__(self, line_num, opcode, operands, full_text):
-        self.line_num = line_num
-        self.opcode = opcode
-        self.operands = operands
-        self.full_text = full_text.strip()
-        self.reads = set()
-        self.writes = set()
-        self.memory_address_reads = set()  # Registers used only for memory addressing
-
-class Dependency:
-    def __init__(self, from_instr, to_instr, register, dep_type):
-        self.from_instr = from_instr
-        self.to_instr = to_instr
-        self.register = register
-        self.dep_type = dep_type
+from .models import LegacyInstruction, Dependency
 
 class ASCIIDataFlowVisualizer:
     def __init__(self):
@@ -39,7 +28,7 @@ class ASCIIDataFlowVisualizer:
                 opcode = parts[0]
                 operands = parts[1] if len(parts) > 1 else ""
                 
-                instr = Instruction(i, opcode, operands, line)
+                instr = LegacyInstruction(i, opcode, operands, line)
                 if not opcode.endswith(':'):
                     self._analyze_registers(instr)
                 self.instructions.append(instr)

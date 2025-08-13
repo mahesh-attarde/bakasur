@@ -13,7 +13,7 @@ import os
 # Add src directory to Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from data_flow_visualizer import DataFlowVisualizer, DataDependency
+from src.dfg_analyzer import DataFlowVisualizer, DataDependency
 
 
 class TestMissingMemoryDependencies(unittest.TestCase):

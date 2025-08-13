@@ -22,7 +22,7 @@ from dataclasses import dataclass
 # Add parent directory to Python path for data_flow_visualizer
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from data_flow_visualizer import DataFlowVisualizer, DataDependency
+from src.dfg_analyzer import DataFlowVisualizer, DataDependency
 
 
 class TestAdvancedArchitecturalScenarios(unittest.TestCase):

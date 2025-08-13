@@ -12,7 +12,7 @@ import os
 # Add src directory to Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from data_flow_visualizer import DataFlowVisualizer
+from src.dfg_analyzer import DataFlowVisualizer
 
 
 def test_subregister_scenario(name: str, assembly_code: str):

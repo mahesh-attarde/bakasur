@@ -1,0 +1,193 @@
+{
+  "architecture": "x86_64",
+  "description": "Intel/AMD x86-64 architecture configuration",
+  "syntax": "intel",
+  
+  "registers": {
+    "64_bit": [
+      "rax", "rbx", "rcx", "rdx", "rsi", "rdi", "rbp", "rsp",
+      "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15"
+    ],
+    "32_bit": [
+      "eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp",
+      "r8d", "r9d", "r10d", "r11d", "r12d", "r13d", "r14d", "r15d"
+    ],
+    "16_bit": [
+      "ax", "bx", "cx", "dx", "si", "di", "bp", "sp",
+      "r8w", "r9w", "r10w", "r11w", "r12w", "r13w", "r14w", "r15w"
+    ],
+    "8_bit": [
+      "al", "bl", "cl", "dl", "sil", "dil", "bpl", "spl",
+      "ah", "bh", "ch", "dh",
+      "r8b", "r9b", "r10b", "r11b", "r12b", "r13b", "r14b", "r15b"
+    ],
+    "xmm": [
+      "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7",
+      "xmm8", "xmm9", "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15",
+      "xmm16", "xmm17", "xmm18", "xmm19", "xmm20", "xmm21", "xmm22", "xmm23",
+      "xmm24", "xmm25", "xmm26", "xmm27", "xmm28", "xmm29", "xmm30", "xmm31"
+    ],
+    "ymm": [
+      "ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7",
+      "ymm8", "ymm9", "ymm10", "ymm11", "ymm12", "ymm13", "ymm14", "ymm15",
+      "ymm16", "ymm17", "ymm18", "ymm19", "ymm20", "ymm21", "ymm22", "ymm23",
+      "ymm24", "ymm25", "ymm26", "ymm27", "ymm28", "ymm29", "ymm30", "ymm31"
+    ],
+    "zmm": [
+      "zmm0", "zmm1", "zmm2", "zmm3", "zmm4", "zmm5", "zmm6", "zmm7",
+      "zmm8", "zmm9", "zmm10", "zmm11", "zmm12", "zmm13", "zmm14", "zmm15",
+      "zmm16", "zmm17", "zmm18", "zmm19", "zmm20", "zmm21", "zmm22", "zmm23",
+      "zmm24", "zmm25", "zmm26", "zmm27", "zmm28", "zmm29", "zmm30", "zmm31"
+    ],
+    "mask": [
+      "k0", "k1", "k2", "k3", "k4", "k5", "k6", "k7"
+    ]
+  },
+
+  "register_aliases": {
+    "rax": ["rax", "eax", "ax", "al", "ah"],
+    "rbx": ["rbx", "ebx", "bx", "bl", "bh"],
+    "rcx": ["rcx", "ecx", "cx", "cl", "ch"],
+    "rdx": ["rdx", "edx", "dx", "dl", "dh"],
+    "rsi": ["rsi", "esi", "si", "sil"],
+    "rdi": ["rdi", "edi", "di", "dil"],
+    "rbp": ["rbp", "ebp", "bp", "bpl"],
+    "rsp": ["rsp", "esp", "sp", "spl"],
+    "r8": ["r8", "r8d", "r8w", "r8b"],
+    "r9": ["r9", "r9d", "r9w", "r9b"],
+    "r10": ["r10", "r10d", "r10w", "r10b"],
+    "r11": ["r11", "r11d", "r11w", "r11b"],
+    "r12": ["r12", "r12d", "r12w", "r12b"],
+    "r13": ["r13", "r13d", "r13w", "r13b"],
+    "r14": ["r14", "r14d", "r14w", "r14b"],
+    "r15": ["r15", "r15d", "r15w", "r15b"],
+    "zmm0": ["zmm0", "ymm0", "xmm0"],
+    "zmm1": ["zmm1", "ymm1", "xmm1"],
+    "zmm2": ["zmm2", "ymm2", "xmm2"],
+    "zmm3": ["zmm3", "ymm3", "xmm3"],
+    "zmm4": ["zmm4", "ymm4", "xmm4"],
+    "zmm5": ["zmm5", "ymm5", "xmm5"],
+    "zmm6": ["zmm6", "ymm6", "xmm6"],
+    "zmm7": ["zmm7", "ymm7", "xmm7"],
+    "zmm8": ["zmm8", "ymm8", "xmm8"],
+    "zmm9": ["zmm9", "ymm9", "xmm9"],
+    "zmm10": ["zmm10", "ymm10", "xmm10"],
+    "zmm11": ["zmm11", "ymm11", "xmm11"],
+    "zmm12": ["zmm12", "ymm12", "xmm12"],
+    "zmm13": ["zmm13", "ymm13", "xmm13"],
+    "zmm14": ["zmm14", "ymm14", "xmm14"],
+    "zmm15": ["zmm15", "ymm15", "xmm15"],
+    "zmm16": ["zmm16", "ymm16", "xmm16"],
+    "zmm17": ["zmm17", "ymm17", "xmm17"],
+    "zmm18": ["zmm18", "ymm18", "xmm18"],
+    "zmm19": ["zmm19", "ymm19", "xmm19"],
+    "zmm20": ["zmm20", "ymm20", "xmm20"],
+    "zmm21": ["zmm21", "ymm21", "xmm21"],
+    "zmm22": ["zmm22", "ymm22", "xmm22"],
+    "zmm23": ["zmm23", "ymm23", "xmm23"],
+    "zmm24": ["zmm24", "ymm24", "xmm24"],
+    "zmm25": ["zmm25", "ymm25", "xmm25"],
+    "zmm26": ["zmm26", "ymm26", "xmm26"],
+    "zmm27": ["zmm27", "ymm27", "xmm27"],
+    "zmm28": ["zmm28", "ymm28", "xmm28"],
+    "zmm29": ["zmm29", "ymm29", "xmm29"],
+    "zmm30": ["zmm30", "ymm30", "xmm30"],
+    "zmm31": ["zmm31", "ymm31", "xmm31"],
+    "k0": ["k0"],
+    "k1": ["k1"],
+    "k2": ["k2"],
+    "k3": ["k3"],
+    "k4": ["k4"],
+    "k5": ["k5"],
+    "k6": ["k6"],
+    "k7": ["k7"]
+  },
+
+  "instruction_categories": {
+    "read_write": [
+      "mov", "movss", "movsd", "movd", "movq", "movups", "movaps",
+      "add", "sub", "mul", "div", "imul", "idiv",
+      "and", "or", "xor", "not", "shl", "shr", "sar",
+      "inc", "dec", "neg", "shld", "shrd",
+      "vmovss", "vmovsd", "vmovd", "vmovq", "vmovups", "vmovaps", "vmovapd",
+      "vmovdqu", "vmovdqa", "vmovhps", "vmovlps", "vmovhpd", "vmovlpd",
+      "vaddss", "vsubss", "vmulss", "vdivss",
+      "vaddps", "vsubps", "vmulps", "vdivps",
+      "vaddpd", "vsubpd", "vmulpd", "vdivpd",
+      "vextractf128", "vinsertf128", "vextractf32x4", "vinsertf32x4",
+      "vextractf64x2", "vinsertf64x2", "vextractf32x8", "vinsertf32x8",
+      "vextractf64x4", "vinsertf64x4",
+      "vfmadd132ss", "vfmadd213ss", "vfmadd231ss",
+      "vfmadd132ps", "vfmadd213ps", "vfmadd231ps",
+      "vfmadd132pd", "vfmadd213pd", "vfmadd231pd",
+      "vfmsub132ss", "vfmsub213ss", "vfmsub231ss",
+      "vfnmadd132ss", "vfnmadd213ss", "vfnmadd231ss",
+      "vfnmsub132ss", "vfnmsub213ss", "vfnmsub231ss",
+      "vblendps", "vblendpd", "vblendvps", "vblendvpd",
+      "vpermilps", "vpermilpd", "vperm2f128",
+      "cmovne", "cmove", "cmovl", "cmovle", "cmovg", "cmovge",
+      "cmova", "cmovae", "cmovb", "cmovbe", "cmovo", "cmovno",
+      "cmovs", "cmovns", "cmovp", "cmovnp",
+      "vpmadd52luq", "vpmadd52huq",
+      "vpcmpeqb", "vpcmpeqw", "vpcmpeqd", "vpcmpeqq",
+      "vpcmpgtb", "vpcmpgtw", "vpcmpgtd", "vpcmpgtq",
+      "vpcmpltb", "vpcmpltw", "vpcmpltd", "vpcmpltq",
+      "vpcmpneb", "vpcmpnew", "vpcmpned", "vpcmpneq",
+      "kandw", "kandb", "kandq", "kandnw", "kandnb", "kandnq",
+      "korw", "korb", "korq", "kxorw", "kxorb", "kxorq",
+      "knotw", "knotb", "knotq", "ktestw", "ktestb", "ktestq",
+      "kshiftlw", "kshiftlb", "kshiftlq", "kshiftrw", "kshiftrb", "kshiftrq",
+      "vpgatherdd", "vpgatherqd", "vpgatherdq", "vpgatherqq",
+      "vpscatterdd", "vpscatterqd", "vpscatterdq", "vpscatterqq",
+      "vgatherdps", "vgatherqps", "vgatherdpd", "vgatherqpd",
+      "vscatterdps", "vscatterqps", "vscatterdpd", "vscatterqpd",
+      "movdqu", "movdqa", "movhps", "movlps", "movhpd", "movlpd",
+      "addss", "subss", "mulss", "divss",
+      "addps", "subps", "mulps", "divps",
+      "addpd", "subpd", "mulpd", "divpd"
+    ],
+    
+    "read_only": [
+      "cmp", "test", "bt", "bts", "btr", "btc"
+    ],
+    
+    "jump": [
+      "jmp", "je", "jne", "jz", "jnz", "jl", "jle", "jg", "jge",
+      "ja", "jae", "jb", "jbe", "js", "jns", "jo", "jno",
+      "jc", "jnc", "jp", "jnp", "jpe", "jpo",
+      "jna", "jnae", "jnb", "jnbe", "jng", "jnge", "jnl", "jnle",
+      "jcxz", "jecxz", "jrcxz"
+    ],
+    
+    "read_modify_write": [
+      "add", "sub", "and", "or", "xor", "shld", "shrd",
+      "vfmadd132ss", "vfmadd213ss", "vfmadd231ss",
+      "vfmadd132ps", "vfmadd213ps", "vfmadd231ps",
+      "vfmadd132pd", "vfmadd213pd", "vfmadd231pd",
+      "vfmsub132ss", "vfmsub213ss", "vfmsub231ss",
+      "vfnmadd132ss", "vfnmadd213ss", "vfnmadd231ss",
+      "vfnmsub132ss", "vfnmsub213ss", "vfnmsub231ss",
+      "vpmadd52luq", "vpmadd52huq"
+    ],
+    
+    "mask_instructions": [
+      "vpcmp", "kand", "kor", "kxor", "knot"
+    ]
+  },
+
+  "special_instructions": {
+    "lea": {
+      "description": "Load Effective Address - calculates address without memory access",
+      "behavior": "address_calculation_only"
+    }
+  },
+
+  "memory_syntax": {
+    "bracket_notation": "intel",
+    "patterns": {
+      "memory_operand": "\\[([^\\]]+)\\]",
+      "mask_register": "\\{(k[0-7])\\}",
+      "register": "\\b({register_names})\\b"
+    }
+  }
+}

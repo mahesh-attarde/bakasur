@@ -5,9 +5,6 @@ Enhanced Data Flow Visualization
 Creative and intuitive visualizations for data flow dependencies including:
 1. ASCII Art Flow Diagrams
 2. Interactive SVG with enhanced layouts
-3. Timeline-based dependency visualization
-4. Parallel lanes for different resource types
-5. Color-coded and symbol-rich representations
 
 Thinking outside the box for maximum comprehension.
 """
@@ -39,11 +36,11 @@ class EnhancedDependency:
     def get_symbol(self) -> str:
         """Get visual symbol for this dependency type"""
         symbols = {
-            'RAW': '🔴',  # Red circle for true dependencies
-            'WAR': '🔵',  # Blue circle for anti-dependencies  
-            'WAW': '🟢'   # Green circle for output dependencies
+            'RAW': 'R',  # R for true dependencies (RAW)
+            'WAR': 'A',  # A for anti-dependencies (WAR)
+            'WAW': 'O'   # O for output dependencies (WAW)
         }
-        return symbols.get(self.dependency_type, '⚪')
+        return symbols.get(self.dependency_type, 'D')
     
     def get_ascii_symbol(self) -> str:
         """Get ASCII symbol for this dependency type"""
@@ -59,27 +56,27 @@ class EnhancedDataFlowVisualizer:
     """Enhanced data flow visualizer with multiple creative representation styles"""
     
     def __init__(self):
-        # Unicode characters for better visual representation
+        # ASCII characters for better visual representation
         self.symbols = {
-            'box_top_left': '┌',
-            'box_top_right': '┐', 
-            'box_bottom_left': '└',
-            'box_bottom_right': '┘',
-            'box_horizontal': '─',
-            'box_vertical': '│',
-            'arrow_right': '→',
-            'arrow_down': '↓',
-            'arrow_up': '↑',
-            'arrow_diagonal_se': '↘',
-            'arrow_diagonal_sw': '↙',
-            'dependency_raw': '🔴',
-            'dependency_war': '🔵', 
-            'dependency_waw': '🟢',
-            'register': '📋',
-            'memory': '💾',
-            'instruction': '⚙️',
-            'cpu': '🖥️',
-            'pipeline_stage': '🔧'
+            'box_top_left': '+',
+            'box_top_right': '+', 
+            'box_bottom_left': '+',
+            'box_bottom_right': '+',
+            'box_horizontal': '-',
+            'box_vertical': '|',
+            'arrow_right': '->',
+            'arrow_down': 'v',
+            'arrow_up': '^',
+            'arrow_diagonal_se': '\\',
+            'arrow_diagonal_sw': '/',
+            'dependency_raw': 'R',
+            'dependency_war': 'A', 
+            'dependency_waw': 'O',
+            'register': 'REG',
+            'memory': 'MEM',
+            'instruction': 'INST',
+            'cpu': 'CPU',
+            'pipeline_stage': 'PIPE'
         }
         
         # Color schemes for different elements
@@ -103,7 +100,7 @@ class EnhancedDataFlowVisualizer:
         """Create an ASCII flow diagram showing instruction flow and dependencies"""
         
         lines = []
-        lines.append(self.colorize("🖥️  DATA FLOW ANALYSIS", 'bold'))
+        lines.append(self.colorize("DATA FLOW ANALYSIS", 'bold'))
         lines.append("=" * 60)
         lines.append("")
         
@@ -122,26 +119,46 @@ class EnhancedDataFlowVisualizer:
             instr_lines = wrapped.split('\n')
             
             # Create box
-            lines.append(f"┌{'─' * (box_width - 2)}┐")
+            lines.append(f"+{'-' * (box_width - 2)}+")
             for line in instr_lines:
                 padded = line.ljust(box_width - 4)
-                lines.append(f"│ {self.colorize(padded, 'instruction')} │")
-            lines.append(f"└{'─' * (box_width - 2)}┘")
+                lines.append(f"| {self.colorize(padded, 'instruction')} |")
+            lines.append(f"+{'-' * (box_width - 2)}+")
             
             # Show dependencies from this instruction
             outgoing_deps = [dep for dep in dependencies if dep.source_line == i]
             if outgoing_deps:
                 for dep in outgoing_deps:
-                    arrow = "↓"
+                    arrow = "v"
                     dep_symbol = dep.get_ascii_symbol()
-                    resource_icon = "📋" if dep.operand_type == 'register' else "💾"
+                    resource_icon = "REG" if dep.operand_type == 'register' else "MEM"
                     
-                    dep_text = f"  {arrow} {dep_symbol} {resource_icon} {dep.resource} → L{dep.target_line}"
+                    dep_text = f"  {arrow} {dep_symbol} {resource_icon} {dep.resource} -> L{dep.target_line}"
                     color_key = f"dependency_{dep.dependency_type.lower()}"
                     lines.append(self.colorize(dep_text, color_key))
                 lines.append("")
             else:
                 lines.append("")
+        
+        return '\n'.join(lines)
+    
+    def create_classic_ascii_visualization(self, instructions: List, dependencies: List[EnhancedDependency]) -> str:
+        """Create classic ASCII text visualization"""
+        lines = []
+        lines.append("=== INSTRUCTIONS ===")
+        
+        for i, instruction in enumerate(instructions):
+            lines.append(f"Line {i}: {instruction}")
+        
+        lines.append("")
+        lines.append("=== DEPENDENCIES ===")
+        
+        if dependencies:
+            for dep in dependencies:
+                dep_icon = "REG" if dep.operand_type == 'register' else "MEM"
+                lines.append(f"{dep_icon} L{dep.source_line} -> L{dep.target_line}: {dep.resource} ({dep.dependency_type})")
+        else:
+            lines.append("No dependencies found")
         
         return '\n'.join(lines)
     
@@ -171,12 +188,12 @@ class EnhancedDataFlowVisualizer:
         """Create a comprehensive ASCII-only analysis report"""
         
         report_lines = []
-        report_lines.append(self.colorize("🔍 COMPREHENSIVE DATA FLOW ANALYSIS REPORT", 'bold'))
+        report_lines.append(self.colorize("COMPREHENSIVE DATA FLOW ANALYSIS REPORT", 'bold'))
         report_lines.append("=" * 70)
         report_lines.append("")
         
         # Basic statistics
-        report_lines.append(self.colorize("📈 STATISTICS", 'bold'))
+        report_lines.append(self.colorize("STATISTICS", 'bold'))
         report_lines.append(f"Total Instructions: {len(instructions)}")
         report_lines.append(f"Total Dependencies: {len(dependencies)}")
         
@@ -251,19 +268,18 @@ def demo_enhanced_visualization():
     
     visualizer = EnhancedDataFlowVisualizer()
     
-    print("🎨 ENHANCED DATA FLOW VISUALIZATION DEMO")
+    print("ENHANCED DATA FLOW VISUALIZATION DEMO")
     print("=" * 50)
     print()
     
     # Show different visualization styles
     styles_to_demo = [
         (VisualizationStyle.FLOW_DIAGRAM, "ASCII Flow Diagram"),
-        (VisualizationStyle.TIMELINE, "Timeline View"),
-        (VisualizationStyle.PARALLEL_LANES, "Parallel Lanes"),
+        (VisualizationStyle.CLASSIC_ASCII, "Classic ASCII"),
     ]
     
     for style, name in styles_to_demo:
-        print(f"\n📊 {name.upper()}")
+        print(f"\n{name.upper()}")
         print("-" * 40)
         result = visualizer.visualize(instructions, dependencies, style)
         print(result)
